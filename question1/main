@@ -1,0 +1,100 @@
+SUBJECTS = ["Python", "SQL", "AI"]
+MAX_MARKS = 100
+PASS_MARK = 40
+DISTINCTION_AVG = 75  
+
+
+def get_valid_marks(subject):
+    """Ask for a subject's marks until a valid number between 0 and MAX_MARKS is entered."""
+    while True:
+        try:
+            marks = float(input(f"  Enter {subject} marks (0-{MAX_MARKS}): "))
+            if 0 <= marks <= MAX_MARKS:
+                return marks
+            print(f"  Marks must be between 0 and {MAX_MARKS}.")
+        except ValueError:
+            print("  Please enter a valid number.")
+
+
+def get_grade(average):
+    """Return a letter grade based on the average marks."""
+    if average >= 75:
+        return "A"
+    elif average >= 60:
+        return "B"
+    elif average >= 50:
+        return "C"
+    elif average >= PASS_MARK:
+        return "D"
+    return "F"
+
+
+def calculate_result(student):
+    """Calculate total, average, grade, and pass/fail status for one student."""
+    marks = [student["Python"], student["SQL"], student["AI"]]
+    total = sum(marks)
+    average = round(total / len(marks), 2)
+
+    student["Total"] = total
+    student["Average"] = average
+    student["Grade"] = get_grade(average)
+    student["Result"] = "PASS" if average >= PASS_MARK else "FAIL"
+    return student
+
+
+def input_students():
+    """Collect details for multiple students until the user stops."""
+    students = []
+    while True:
+        print("\nEnter student details:")
+        student_id = input("  Student ID: ").strip()
+        name = input("  Student Name: ").strip()
+
+        student = {"ID": student_id, "Name": name}
+        for subject in SUBJECTS:
+            student[subject] = get_valid_marks(subject)
+
+        students.append(student)
+
+        more = input("\nAdd another student? (y/n): ").strip().lower()
+        if more != "y":
+            break
+    return students
+
+
+def display_report(students, top_student, high_scorers):
+    """Print the full result report in a readable format."""
+    print("\n===== Student Result =====")
+    for s in students:
+        print(f"\nStudent ID: {s['ID']}")
+        print(f"Name: {s['Name']}")
+        print(f"Total: {s['Total']:g}")
+        print(f"Average: {s['Average']:g}")
+        print(f"Grade: {s['Grade']}")
+        print(f"Result: {s['Result']}")
+
+    print("\n===== Summary =====")
+    print(f"Highest Scoring Student: {top_student['Name']} "
+          f"(Average: {top_student['Average']:g})")
+
+    if high_scorers:
+        print(f"Students above {DISTINCTION_AVG}: {', '.join(high_scorers)}")
+    else:
+        print(f"Students above {DISTINCTION_AVG}: None")
+
+
+def main():
+    print("===== Student Marks Management =====")
+    students = input_students()
+
+    if not students:
+        print("No students entered.")
+        return
+
+    for student in students:
+        calculate_result(student)
+    top_student = max(students, key=lambda s: s["Average"])
+    high_scorers = [s["Name"] for s in students if s["Average"] > DISTINCTION_AVG]
+   display_report(students, top_student, high_scorers)
+   if __name__ == "__main__":
+    main()

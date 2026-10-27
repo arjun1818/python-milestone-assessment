@@ -1,0 +1,117 @@
+FILE_NAME = "employees.txt"
+SAMPLE_DATA = [
+    "101,Rahul,Python Developer,50000",
+    "102,Anjali,Tester,45000",
+    "103,John,Developer,60000",
+    "104,Priya,Tester,48000",
+]
+HIGH_SALARY_LIMIT = 50000
+
+
+class Employee:
+    """Represents a single employee."""
+
+    def __init__(self, employee_id, name, role, salary):
+        self.employee_id = employee_id
+        self.name = name
+        self.role = role
+        self.salary = salary
+
+    def display_details(self):
+        """Print the employee's details in a single line."""
+        print(f"{self.employee_id} - {self.name} - {self.role} - ₹{self.salary}")
+
+
+def add_employee(employee, file_name=FILE_NAME):
+    """Append one employee record to the file."""
+    with open(file_name, "a", encoding="utf-8") as file:
+        file.write(f"{employee.employee_id},{employee.name},{employee.role},{employee.salary}\n")
+
+
+def create_sample_file(file_name=FILE_NAME):
+    """Create employees.txt with sample data."""
+    with open(file_name, "w", encoding="utf-8") as file:
+        for line in SAMPLE_DATA:
+            file.write(line + "\n")
+
+
+def read_employees(file_name=FILE_NAME):
+    """Read all employees from the file and return them as a list of Employee objects."""
+    employees = []
+    try:
+        with open(file_name, "r", encoding="utf-8") as file:
+            for line in file:
+                line = line.strip()
+                if not line:
+                    continue
+                emp_id, name, role, salary = line.split(",")
+                employees.append(Employee(emp_id, name, role, int(salary)))
+    except FileNotFoundError:
+        print(f"Error: '{file_name}' was not found.")
+    except ValueError:
+        print(f"Error: '{file_name}' contains a malformed record.")
+    return employees
+
+
+def display_all(employees):
+    """Display every employee."""
+    print("\n===== Employee Details =====\n")
+    for emp in employees:
+        emp.display_details()
+
+
+def find_employees_above_limit(employees, limit=HIGH_SALARY_LIMIT):
+    """Return employees whose salary is greater than the limit."""
+    return [emp for emp in employees if emp.salary > limit]
+
+
+def find_highest_salary(employees):
+    """Return the employee with the highest salary, or None if the list is empty."""
+    if not employees:
+        return None
+    return max(employees, key=lambda emp: emp.salary)
+
+
+def find_employees_by_role(employees):
+    """Return a dictionary counting employees in each role."""
+    role_count = {}
+    for emp in employees:
+        role_count[emp.role] = role_count.get(emp.role, 0) + 1
+    return role_count
+
+
+def main():
+    # Create the file with sample data if it does not exist
+    try:
+        with open(FILE_NAME, "r", encoding="utf-8"):
+            pass
+    except FileNotFoundError:
+        create_sample_file()
+        print(f"'{FILE_NAME}' not found, so a new file with sample data was created.")
+
+    employees = read_employees()
+    if not employees:
+        print("No employee data to display.")
+        return
+
+    display_all(employees)
+
+    print("\n===== Employees with Salary > 50000 =====\n")
+    high_earners = find_employees_above_limit(employees)
+    if high_earners:
+        for emp in high_earners:
+            print(f"{emp.name} - ₹{emp.salary}")
+    else:
+        print("No employees found.")
+
+    print("\nHighest Paid Employee:")
+    top = find_highest_salary(employees)
+    print(f"{top.name} - ₹{top.salary}")
+
+    print("\nEmployee Count by Role:")
+    for role, count in find_employees_by_role(employees).items():
+        print(f"{role}: {count}")
+
+
+if __name__ == "__main__":
+    main()
